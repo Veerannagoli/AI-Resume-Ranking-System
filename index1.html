@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVCStream AI | Talent Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --accent: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Layout --- */
+        .dashboard {
+            max-width: 1400px;
+            margin: 3rem auto;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2.5rem;
+            padding: 0 2rem;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+        }
+
+        h2 { font-weight: 800; font-size: 1.8rem; margin-bottom: 1.5rem; letter-spacing: -0.5px; }
+        label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
+
+        /* --- Inputs --- */
+        textarea, select, input[type="number"] {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+            background: var(--bg-main);
+            transition: all 0.2s;
+        }
+
+        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+
+        .file-upload-wrapper {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .file-upload-wrapper:hover { border-color: var(--accent); background: #f5f3ff; }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+
+        #rankBtn { background: var(--accent); color: white; }
+        #rankBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
+
+        #dlBtn { background: var(--success); color: white; display: none; margin-bottom: 2rem; }
+
+        /* --- Candidate Cards --- */
+        .results-grid { display: grid; gap: 1rem; }
+
+        .candidate-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .candidate-card:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+            background: #fff;
+        }
+
+        .score-badge {
+            background: #eef2ff;
+            color: var(--accent);
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 1.1rem;
+        }
+
+        /* --- Fit Badges --- */
+        .fit-status {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .Excellent { background: #dcfce7; color: #166534; }
+        .Moderate { background: #fef3c7; color: #92400e; }
+        .Weak { background: #ffedd5; color: #9a3412; }
+        .Poor { background: #fee2e2; color: #991b1b; }
+
+        /* --- Modal & Advanced Report --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 850px;
+            padding: 3rem;
+            border-radius: 32px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .report-header {
+            border-bottom: 2px solid var(--bg-main);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: var(--bg-main);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin: 4px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .gap-tag { background: #fee2e2; color: #dc2626; }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loader i { color: var(--accent); font-size: 2rem; animation: spin 2s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> GVCStream AI</div>
+    <div style="font-weight: 600; color: var(--text-muted);">Neural Talent Engine v2.0</div>
+</nav>
+
+<div class="dashboard">
+    <!-- Input Sidebar Panel -->
+    <aside class="panel">
+        <h2>Job Context</h2>
+        
+        <label>Master Job Description</label>
+        <textarea id="jd_text" rows="8" placeholder="Paste the role requirements here..."></textarea>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label>Target Count</label>
+                <input type="number" id="top_count" value="3">
+            </div>
+            <div>
+                <label>Experience Profile</label>
+                <select id="level">
+                    <option value="internship">Internship</option>
+                    <option value="entry" selected>Entry Level</option>
+                    <option value="experienced">Experienced</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Resume Repository</label>
+        <div class="file-upload-wrapper" onclick="document.getElementById('files').click()">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+            <p style="margin:0; font-weight:600;">Click to upload PDFs</p>
+            <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Supports batch processing</p>
+            <input type="file" id="files" multiple accept=".pdf" style="display:none">
+        </div>
+
+        <button id="rankBtn" onclick="executeRanking()">Analyze Resumes</button>
+    </aside>
+
+    <!-- Results Main Display -->
+    <main>
+        <div id="loader" class="loader">
+            <i class="fa-solid fa-circle-notch"></i>
+            <p style="margin-top:1rem; font-weight:600;">Quantifying Candidate DNA...</p>
+        </div>
+
+        <div id="results-container" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+                <h2 style="margin:0;">Ranking Results</h2>
+                <button id="dlBtn" onclick="bulkDownload()" style="width:auto; padding: 10px 25px;">Export Top Picks</button>
+            </div>
+            <div id="results" class="results-grid"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Advanced Analysis Modal (Score Removed) -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span style="position:absolute; top:30px; right:40px; cursor:pointer; font-size:1.5rem;" onclick="closeModal()">&times;</span>
+        
+        <div id="report-ui">
+            <div class="report-header">
+                <p style="text-transform:uppercase; font-weight:800; color:var(--accent); margin-bottom:0.5rem; font-size:0.8rem;">ATS Expert Analysis</p>
+                <h1 id="rep-name" style="margin:0; letter-spacing:-1px;">Filename.pdf</h1>
+            </div>
+
+            <div class="report-grid">
+                <div>
+                    <label>Job Role Prediction</label>
+                    <h2 id="rep-match" style="margin:0; color:var(--accent); margin-bottom:2rem;">Searching...</h2>
+
+                    <label>Expert Verdict</label>
+                    <p id="rep-reasoning" style="font-size:0.95rem; color:var(--text-main); margin-bottom:2rem;"></p>
+                </div>
+
+                <div>
+                    <label>Verified Skills</label>
+                    <div id="rep-skills" style="margin-bottom:1.5rem;"></div>
+
+                    <label>Critical Gaps</label>
+                    <div id="rep-gaps"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:2rem; padding-top:2rem; border-top:1px solid var(--bg-main);">
+                <label>Strategic Recommendation</label>
+                <div id="rep-rec" style="background:var(--bg-main); padding:1.5rem; border-radius:16px; font-weight:600; font-family:'JetBrains Mono'; font-size: 0.85rem; line-height: 1.4; white-space: pre-wrap;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rankedResults = [];
+
+    async function executeRanking() {
+        const jd = document.getElementById('jd_text').value;
+        const files = document.getElementById('files').files;
+        if(!jd || files.length === 0) return alert("Please provide both a JD and resumes.");
+
+        const fd = new FormData();
+        fd.append('jd_text', jd);
+        fd.append('candidate_level', document.getElementById('level').value);
+        for(let f of files) fd.append('files', f);
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('results-container').style.display = 'none';
+        document.getElementById('results').innerHTML = "";
+
+        try {
+            const res = await fetch('http://127.0.0.1:8080/rank-resumes', { method:'POST', body:fd });
+            const data = await res.json();
+            rankedResults = data.results;
+
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('results-container').style.display = 'block';
+            document.getElementById('dlBtn').style.display = 'block';
+
+            rankedResults.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'candidate-card';
+                div.onclick = () => openExpertReport(c.filename);
+                
+                // Set the Fit Category class (Step 19)
+                const catClass = c.category ? c.category.split(' ')[0] : 'Poor';
+
+                div.innerHTML = `
+                    <div>
+                        <p style="font-weight:800; margin:0; font-size:1.1rem;">Candidate #${String(i+1).padStart(2, '0')}</p>
+                        <span class="fit-status ${catClass}">${c.category}</span>
+                    </div>
+                    <div class="score-badge">${(c.score*100).toFixed(0)}%</div>
+                `;
+                document.getElementById('results').appendChild(div);
+            });
+        } catch(e) { 
+            alert("Backend Connection Error. Ensure your Python server is running on 8080.");
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    async function openExpertReport(fname) {
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('rep-name').innerText = fname;
+        document.getElementById('rep-match').innerText = "Analyzing Role...";
+        document.getElementById('rep-reasoning').innerText = "Connecting to Neural Engine...";
+        
+        const fd = new FormData();
+        fd.append('jd_text', document.getElementById('jd_text').value);
+        fd.append('filename', fname);
+        for(let f of document.getElementById('files').files) fd.append('files', f);
+
+        try {
+            const res = await fetch('http://127.0.0.1:8080/generate-report', { method:'POST', body:fd });
+            const r = await res.json();
+
+            document.getElementById('rep-match').innerText = r.best_match;
+            document.getElementById('rep-reasoning').innerText = r.reasoning;
+
+            // Strategic Recommendation using predicted role context
+            document.getElementById('rep-rec').innerText = `Recommended Pathway: ${r.recommended}\nAlternatives: ${r.alternatives.join(', ')}`;
+
+            // Skills Display
+            const skillContainer = document.getElementById('rep-skills');
+            skillContainer.innerHTML = r.matched_skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+            
+            // Critical Gaps Display
+            const gapContainer = document.getElementById('rep-gaps');
+            gapContainer.innerHTML = r.skill_gaps.map(s => `<span class="skill-tag gap-tag">${s}</span>`).join('');
+
+        } catch(e) {
+            alert("Error generating the detailed analysis.");
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function bulkDownload() {
+        const count = parseInt(document.getElementById('top_count').value);
+        rankedResults.slice(0, count).forEach((c, i) => {
+            const f = Array.from(document.getElementById('files').files).find(x => x.name === c.filename);
+            if(f) {
+                setTimeout(() => {
+                    const url = URL.createObjectURL(f);
+                    const a = document.createElement('a');
+                    a.href = url; 
+                    a.download = `Top_Selected_${i+1}_${c.filename}`;
+                    a.click();
+                }, i * 300);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
