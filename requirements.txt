@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+gunicorn
+python-dotenv
+groq
+spacy
+python-multipart
+pandas
+scikit-learn
