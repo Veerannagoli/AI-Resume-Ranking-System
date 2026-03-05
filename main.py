@@ -26,6 +26,3 @@ async def api_generate_report(jd_text: str = Form(...), filename: str = Form(...
             s = io.BytesIO(content); s.filename = file.filename
             return engine.generate_deep_report(s, jd_text)
     raise HTTPException(status_code=404, detail="File not found")
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8080)
