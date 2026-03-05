@@ -9,4 +9,4 @@ pandas
 scikit-learn
 nltk
 PyPDF2
-sentence-transformers
+sentence-transformers==2.7.0
